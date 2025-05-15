@@ -1,0 +1,174 @@
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+using namespace std;
+
+struct MatHang {
+    char ma[10];
+    char ten[30];
+    int soluong;
+};
+
+struct Node {
+    MatHang data;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Nhap thong tin mot mat hang
+void nhapMatHang(MatHang &mh) {
+    cout << "Nhap ma hang: ";
+    cin.ignore();
+    cin.getline(mh.ma, 10);
+    cout << "Nhap ten hang: ";
+    cin.getline(mh.ten, 30);
+    cout << "Nhap so luong: ";
+    cin >> mh.soluong;
+}
+
+// Tao danh sach mat hang (toi thieu 3)
+void taoDanhSach(TRO &L) {
+    int n;
+    cout << "Nhap so luong mat hang (toi thieu 3): ";
+    cin >> n;
+    while (n < 3) {
+        cout << "Can nhap it nhat 3 mat hang. Nhap lai: ";
+        cin >> n;
+    }
+
+    TRO tail = NULL;
+    MatHang mh;
+    for (int i = 0; i < n; i++) {
+        cout << "\nNhap mat hang thu " << i + 1 << ":\n";
+        nhapMatHang(mh);
+        TRO p = new Node;
+        p->data = mh;
+        p->next = NULL;
+
+        if (L == NULL) {
+            L = p;
+        } else {
+            tail->next = p;
+        }
+        tail = p;
+    }
+}
+
+// Xuat danh sach
+void xuatDanhSach(TRO L) {
+    cout << left << setw(10) << "Ma"
+         << setw(30) << "Ten"
+         << setw(10) << "So luong" << endl;
+    while (L != NULL) {
+        cout << left << setw(10) << L->data.ma
+             << setw(30) << L->data.ten
+             << setw(10) << L->data.soluong << endl;
+        L = L->next;
+    }
+}
+
+// Tim so luong lon nhat
+int timMaxSL(TRO L) {
+    int max = L->data.soluong;
+    TRO p = L->next;
+    while (p != NULL) {
+        if (p->data.soluong > max)
+            max = p->data.soluong;
+        p = p->next;
+    }
+    return max;
+}
+
+// Hien thi cac mat hang co so luong lon nhat
+void hienThiMax(TRO L) {
+    int max = timMaxSL(L);
+    cout << "\nMat hang co so luong lon nhat (" << max << "):\n";
+    cout << left << setw(10) << "Ma"
+         << setw(30) << "Ten"
+         << setw(10) << "So luong" << endl;
+
+    while (L != NULL) {
+        if (L->data.soluong == max) {
+            cout << left << setw(10) << L->data.ma
+                 << setw(30) << L->data.ten
+                 << setw(10) << L->data.soluong << endl;
+        }
+        L = L->next;
+    }
+}
+
+// Xoa mot mat hang co so luong lon nhat (xoa dau tien tim thay)
+void xoaMax(TRO &L) {
+    int max = timMaxSL(L);
+    TRO p = L, prev = NULL;
+
+    while (p != NULL) {
+        if (p->data.soluong == max) {
+            if (prev == NULL) {
+                L = p->next;
+            } else {
+                prev->next = p->next;
+            }
+            delete p;
+            cout << "\nDa xoa mat hang co so luong lon nhat.\n";
+            return;
+        }
+        prev = p;
+        p = p->next;
+    }
+}
+
+// Chen mot mat hang moi vao truoc mat hang dau tien
+void chenTruocDau(TRO &L, MatHang mh) {
+    TRO p = new Node;
+    p->data = mh;
+    p->next = L;
+    L = p;
+}
+
+// Sap xep danh sach giam dan theo so luong (Bubble Sort)
+void sapXepGiamDan(TRO &L) {
+    if (L == NULL || L->next == NULL) return;
+
+    TRO p, q;
+    for (p = L; p->next != NULL; p = p->next) {
+        for (q = p->next; q != NULL; q = q->next) {
+            if (p->data.soluong < q->data.soluong) {
+                MatHang tmp = p->data;
+                p->data = q->data;
+                q->data = tmp;
+            }
+        }
+    }
+}
+
+int main() {
+    TRO L = NULL;
+
+    // Tao danh sach
+    taoDanhSach(L);
+    cout << "\n=== Danh sach vua nhap ===\n";
+    xuatDanhSach(L);
+
+    // Hien thi mat hang co so luong lon nhat
+    hienThiMax(L);
+
+    // Xoa mat hang co so luong lon nhat
+    xoaMax(L);
+    cout << "\nDanh sach sau khi xoa:\n";
+    xuatDanhSach(L);
+
+    // Nhap mat hang moi de chen
+    MatHang mhMoi;
+    cout << "\nNhap mat hang moi de chen truoc mat hang dau tien:\n";
+    nhapMatHang(mhMoi);
+    chenTruocDau(L, mhMoi);
+
+    // Sap xep giam dan
+    sapXepGiamDan(L);
+    cout << "\nDanh sach sau khi chen va sap xep giam dan theo so luong:\n";
+    xuatDanhSach(L);
+
+    return 0;
+}
