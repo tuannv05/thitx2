@@ -1,0 +1,191 @@
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+using namespace std;
+
+struct SinhVien {
+    char hodem[30];
+    char ten[15];
+    char gioitinh[5];
+    float diemTK;
+};
+
+struct Node {
+    SinhVien infor;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Nhap thong tin sinh vien
+void nhapSinhVien(SinhVien &sv) {
+    cout << "Nhap ho dem: ";
+    cin.ignore();
+    cin.getline(sv.hodem, 30);
+    cout << "Nhap ten: ";
+    cin.getline(sv.ten, 15);
+    cout << "Nhap gioi tinh: ";
+    cin.getline(sv.gioitinh, 5);
+    cout << "Nhap diem tong ket: ";
+    cin >> sv.diemTK;
+}
+
+// Tao danh sach sinh vien
+void taoDanhSach(TRO &L) {
+    int n;
+    cout << "Nhap so luong sinh vien (toi thieu 3): ";
+    cin >> n;
+    while (n < 3) {
+        cout << "Can it nhat 3 sinh vien. Nhap lai: ";
+        cin >> n;
+    }
+
+    SinhVien sv;
+    TRO tail = NULL;
+    for (int i = 0; i < n; i++) {
+        cout << "\nNhap sinh vien thu " << i + 1 << ":\n";
+        nhapSinhVien(sv);
+        TRO p = new Node;
+        p->infor = sv;
+        p->next = NULL;
+
+        if (L == NULL) {
+            L = p;
+        } else {
+            tail->next = p;
+        }
+        tail = p;
+    }
+}
+
+// Xuat danh sach
+void xuatDanhSach(TRO L) {
+    cout << left << setw(25) << "Ho dem" << setw(15) << "Ten"
+         << setw(10) << "Gioi tinh" << setw(10) << "Diem TK" << endl;
+    while (L != NULL) {
+        cout << left << setw(25) << L->infor.hodem
+             << setw(15) << L->infor.ten
+             << setw(10) << L->infor.gioitinh
+             << fixed << setprecision(2) << L->infor.diemTK << endl;
+        L = L->next;
+    }
+}
+
+// Tim va hien thi sinh vien theo ten
+void timTheoTen(TRO L, const char* ten) {
+    bool found = false;
+    while (L != NULL) {
+        if (strcmp(L->infor.ten, ten) == 0) {
+            if (!found)
+                cout << "\nThong tin sinh vien tim thay:\n";
+            found = true;
+            cout << left << setw(25) << L->infor.hodem
+                 << setw(15) << L->infor.ten
+                 << setw(10) << L->infor.gioitinh
+                 << fixed << setprecision(2) << L->infor.diemTK << endl;
+        }
+        L = L->next;
+    }
+    if (!found) {
+        cout << "Khong tim thay sinh vien nao ten \"" << ten << "\".\n";
+    }
+}
+
+// Xoa sinh vien theo ten (chi xoa dau tien tim thay)
+bool xoaTheoTen(TRO &L, const char* ten) {
+    TRO p = L, prev = NULL;
+    while (p != NULL) {
+        if (strcmp(p->infor.ten, ten) == 0) {
+            if (prev == NULL) {
+                L = p->next;
+            } else {
+                prev->next = p->next;
+            }
+            delete p;
+            return true;
+        }
+        prev = p;
+        p = p->next;
+    }
+    return false;
+}
+
+// Chen sinh vien moi vao truoc sinh vien thu 3
+void chenTruocThu3(TRO &L, SinhVien sv) {
+    TRO p = new Node;
+    p->infor = sv;
+    p->next = NULL;
+
+    if (L == NULL || L->next == NULL) {
+        p->next = L;
+        L = p;
+        return;
+    }
+
+    TRO q = L;
+    for (int i = 1; i < 2 && q->next != NULL; i++) {
+        q = q->next;
+    }
+
+    p->next = q->next;
+    q->next = p;
+}
+
+// Sap xep danh sach theo diem tang dan (Bubble Sort)
+void sapXepDiemTangDan(TRO &L) {
+    if (L == NULL || L->next == NULL) return;
+
+    bool swapped;
+    do {
+        swapped = false;
+        TRO p = L;
+        while (p->next != NULL) {
+            if (p->infor.diemTK > p->next->infor.diemTK) {
+                SinhVien temp = p->infor;
+                p->infor = p->next->infor;
+                p->next->infor = temp;
+                swapped = true;
+            }
+            p = p->next;
+        }
+    } while (swapped);
+}
+
+int main() {
+    TRO L = NULL;
+
+    // Tao danh sach
+    taoDanhSach(L);
+
+    cout << "\n=== Danh sach sinh vien vua nhap ===\n";
+    xuatDanhSach(L);
+
+    // Tim theo ten
+    char tenTim[15];
+    cout << "\nNhap ten sinh vien can tim: ";
+    cin.ignore();
+    cin.getline(tenTim, 15);
+    timTheoTen(L, tenTim);
+
+    // Xoa sinh vien tim thay
+    if (xoaTheoTen(L, tenTim)) {
+        cout << "\nDanh sach sau khi xoa sinh vien ten \"" << tenTim << "\":\n";
+        xuatDanhSach(L);
+    } else {
+        cout << "\nKhong co sinh vien nao bi xoa.\n";
+    }
+
+    // Chen sinh vien moi vao truoc sinh vien thu 3
+    SinhVien svMoi;
+    cout << "\nNhap thong tin sinh vien moi de chen truoc sinh vien thu 3:\n";
+    nhapSinhVien(svMoi);
+    chenTruocThu3(L, svMoi);
+
+    // Sap xep tang dan theo diem
+    sapXepDiemTangDan(L);
+
+    cout << "\nDanh sach sau khi chen va sap xep tang dan theo diem:\n";
+    xuatDanhSach(L);
+
+    return 0;
+}
