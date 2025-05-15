@@ -1,0 +1,172 @@
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+using namespace std;
+
+// Khai bao cau truc mat hang
+struct MatHang {
+    char ma[10];
+    char ten[30];
+    int soluong;
+};
+
+// Node trong danh sach lien ket
+struct Node {
+    MatHang data;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Nhap thong tin 1 mat hang
+void nhapMH(MatHang &mh) {
+    cout << "Nhap ma mat hang: ";
+    cin.ignore();
+    cin.getline(mh.ma, 10);
+    cout << "Nhap ten mat hang: ";
+    cin.getline(mh.ten, 30);
+    cout << "Nhap so luong: ";
+    cin >> mh.soluong;
+}
+
+// Them mat hang vao cuoi danh sach
+void themCuoi(TRO &L, MatHang mh) {
+    TRO p = new Node;
+    p->data = mh;
+    p->next = NULL;
+
+    if (L == NULL) {
+        L = p;
+    } else {
+        TRO q = L;
+        while (q->next != NULL)
+            q = q->next;
+        q->next = p;
+    }
+}
+
+// Tao danh sach co it nhat 3 mat hang
+void taoDanhSach(TRO &L) {
+    int n;
+    cout << "Nhap so luong mat hang (toi thieu 3): ";
+    cin >> n;
+    while (n < 3) {
+        cout << "Nhap lai >= 3: ";
+        cin >> n;
+    }
+
+    MatHang mh;
+    for (int i = 0; i < n; ++i) {
+        cout << "\nNhap mat hang thu " << i + 1 << ":\n";
+        nhapMH(mh);
+        themCuoi(L, mh);
+    }
+}
+
+// Hien thi danh sach
+void hienThi(TRO L) {
+    cout << left << setw(12) << "Ma"
+         << setw(25) << "Ten"
+         << setw(10) << "So luong" << endl;
+    while (L != NULL) {
+        cout << left << setw(12) << L->data.ma
+             << setw(25) << L->data.ten
+             << setw(10) << L->data.soluong << endl;
+        L = L->next;
+    }
+}
+
+// Tim node co so luong lon nhat
+TRO timMax(TRO L) {
+    TRO maxNode = L;
+    while (L != NULL) {
+        if (L->data.soluong > maxNode->data.soluong)
+            maxNode = L;
+        L = L->next;
+    }
+    return maxNode;
+}
+
+// Xoa node co so luong lon nhat
+void xoaMax(TRO &L) {
+    TRO maxNode = timMax(L);
+    if (maxNode == NULL) return;
+
+    if (L == maxNode) {
+        L = L->next;
+        delete maxNode;
+        return;
+    }
+
+    TRO prev = L;
+    while (prev->next != maxNode) {
+        prev = prev->next;
+    }
+
+    prev->next = maxNode->next;
+    delete maxNode;
+}
+
+// Chen mot mat hang moi vao sau mat hang dau tien
+void chenSauThuNhat(TRO &L, MatHang mh) {
+    TRO p = new Node;
+    p->data = mh;
+    p->next = NULL;
+
+    if (L == NULL) {
+        L = p;
+    } else {
+        p->next = L->next;
+        L->next = p;
+    }
+}
+
+// Sap xep danh sach theo so luong tang dan
+void sapXepTang(TRO &L) {
+    for (TRO p = L; p != NULL; p = p->next) {
+        for (TRO q = p->next; q != NULL; q = q->next) {
+            if (p->data.soluong > q->data.soluong) {
+                swap(p->data, q->data);
+            }
+        }
+    }
+}
+
+// Ham main thuc hien cac yeu cau
+int main() {
+    TRO L = NULL;
+    
+    // 1. Tao danh sach
+    taoDanhSach(L);
+    
+    // 2. Hien thi danh sach ban dau
+    cout << "\n=== Danh sach mat hang ===\n";
+    hienThi(L);
+
+    // 3. Tim mat hang co so luong lon nhat
+    TRO maxNode = timMax(L);
+    if (maxNode != NULL) {
+        cout << "\n=== Mat hang co so luong lon nhat ===\n";
+        cout << left << setw(12) << maxNode->data.ma
+             << setw(25) << maxNode->data.ten
+             << setw(10) << maxNode->data.soluong << endl;
+    }
+
+    // 4. Xoa mat hang co so luong lon nhat
+    xoaMax(L);
+    cout << "\n=== Danh sach sau khi xoa mat hang lon nhat ===\n";
+    hienThi(L);
+
+    // 5. Nhap va chen mot mat hang moi sau mat hang dau tien
+    MatHang mhMoi;
+    cout << "\nNhap mat hang moi de chen sau mat hang thu nhat:\n";
+    nhapMH(mhMoi);
+    chenSauThuNhat(L, mhMoi);
+
+    // 6. Sap xep theo so luong tang dan
+    sapXepTang(L);
+    cout << "\n=== Danh sach sau khi chen va sap xep tang dan ===\n";
+    hienThi(L);
+
+    return 0;
+}
