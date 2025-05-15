@@ -1,0 +1,194 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+struct HocPhan {
+    char maHP[10];
+    char tenHP[50];
+    int soTinChi;
+};
+
+struct Node {
+    HocPhan data;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Ham nhap thong tin hoc phan
+void nhapHocPhan(HocPhan &hp) {
+    cout << "Nhap ma hoc phan: ";
+    cin.ignore();
+    cin.getline(hp.maHP, 10);
+    cout << "Nhap ten hoc phan: ";
+    cin.getline(hp.tenHP, 50);
+    cout << "Nhap so tin chi: ";
+    cin >> hp.soTinChi;
+}
+
+// Them hoc phan vao cuoi danh sach
+void themCuoi(TRO &L, HocPhan hp) {
+    Node* p = new Node;
+    p->data = hp;
+    p->next = NULL;
+
+    if (L == NULL) {
+        L = p;
+    } else {
+        Node* q = L;
+        while (q->next != NULL)
+            q = q->next;
+        q->next = p;
+    }
+}
+
+// Xuat danh sach
+void xuatDS(TRO L) {
+    cout << "\nDanh sach hoc phan:\n";
+    while (L != NULL) {
+        cout << "Ma: " << L->data.maHP << ", Ten: " << L->data.tenHP << ", So tin chi: " << L->data.soTinChi << endl;
+        L = L->next;
+    }
+}
+
+// Dem so luong node
+int demNode(TRO L) {
+    int count = 0;
+    while (L != NULL) {
+        count++;
+        L = L->next;
+    }
+    return count;
+}
+
+// Chen tai vi tri thu 3 (n > 3)
+void chenVaoViTri3(TRO &L, HocPhan hp) {
+    if (demNode(L) < 3) return;
+
+    Node* p = new Node;
+    p->data = hp;
+
+    Node* q = L;
+    for (int i = 1; i < 2 && q != NULL; i++) {
+        q = q->next;
+    }
+
+    if (q != NULL) {
+        p->next = q->next;
+        q->next = p;
+    }
+}
+
+// Chen vao truoc vi tri thu 2
+void chenTruocViTri2(TRO &L, HocPhan hp) {
+    Node* p = new Node;
+    p->data = hp;
+
+    if (L == NULL || L->next == NULL) {
+        p->next = L;
+        L = p;
+        return;
+    }
+
+    Node* q = L;
+    p->next = q->next;
+    q->next = p;
+}
+
+// Chen vao dau danh sach
+void chenDau(TRO &L, HocPhan hp) {
+    Node* p = new Node;
+    p->data = hp;
+    p->next = L;
+    L = p;
+}
+
+// Xoa hoc phan co so tin chi cao nhat
+void xoaTinChiMax(TRO &L) {
+    if (L == NULL) return;
+
+    int maxTC = L->data.soTinChi;
+    Node* p = L;
+    while (p != NULL) {
+        if (p->data.soTinChi > maxTC)
+            maxTC = p->data.soTinChi;
+        p = p->next;
+    }
+
+    Node* prev = NULL, *curr = L;
+    while (curr != NULL && curr->data.soTinChi != maxTC) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    if (curr != NULL) {
+        if (prev == NULL) {
+            L = L->next;
+        } else {
+            prev->next = curr->next;
+        }
+        delete curr;
+    }
+}
+
+// Xoa hoc phan truoc maHP == "123"
+void xoaTruocMa123(TRO &L) {
+    if (L == NULL || L->next == NULL) return;
+
+    Node* prev = NULL, *curr = L, *next = L->next;
+
+    while (next != NULL && strcmp(next->data.maHP, "123") != 0) {
+        prev = curr;
+        curr = next;
+        next = next->next;
+    }
+
+    if (next != NULL) { // tim thay ma "123"
+        if (prev == NULL) {
+            L = next;
+        } else {
+            prev->next = next;
+        }
+        delete curr;
+    }
+}
+
+// Ham chinh
+int main() {
+    TRO L = NULL;
+    HocPhan hp;
+
+    cout << "=== Nhap danh sach 5 hoc phan ===\n";
+    for (int i = 0; i < 5; ++i) {
+        cout << "Nhap hoc phan thu " << i + 1 << ":\n";
+        nhapHocPhan(hp);
+        themCuoi(L, hp);
+    }
+
+    xuatDS(L);
+
+    cout << "\nChen hoc phan moi vao vi tri thu 3 (neu co):\n";
+    nhapHocPhan(hp);
+    chenVaoViTri3(L, hp);
+    xuatDS(L);
+
+    cout << "\nChen hoc phan moi vao truoc vi tri thu 2:\n";
+    nhapHocPhan(hp);
+    chenTruocViTri2(L, hp);
+    xuatDS(L);
+
+    cout << "\nChen hoc phan moi vao dau danh sach:\n";
+    nhapHocPhan(hp);
+    chenDau(L, hp);
+    xuatDS(L);
+
+    cout << "\nXoa hoc phan co so tin chi cao nhat:\n";
+    xoaTinChiMax(L);
+    xuatDS(L);
+
+    cout << "\nXoa hoc phan truoc hoc phan co ma '123':\n";
+    xoaTruocMa123(L);
+    xuatDS(L);
+
+    return 0;
+}
