@@ -1,0 +1,182 @@
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+using namespace std;
+
+struct NhanVien {
+    char hodem[30];
+    char ten[20];
+    char gioitinh[5];
+    char manv[10];
+    int soluong;
+};
+
+struct Node {
+    NhanVien data;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Nhap 1 nhan vien
+void nhapNV(NhanVien &nv) {
+    cout << "Nhap ho dem: ";
+    cin.ignore();
+    cin.getline(nv.hodem, 30);
+    cout << "Nhap ten: ";
+    cin.getline(nv.ten, 20);
+    cout << "Nhap gioi tinh: ";
+    cin.getline(nv.gioitinh, 5);
+    cout << "Nhap ma nhan vien: ";
+    cin.getline(nv.manv, 10);
+    cout << "Nhap so luong: ";
+    cin >> nv.soluong;
+}
+
+// Them vao cuoi danh sach
+void themCuoi(TRO &L, NhanVien nv) {
+    TRO p = new Node;
+    p->data = nv;
+    p->next = NULL;
+
+    if (L == NULL) {
+        L = p;
+    } else {
+        TRO q = L;
+        while (q->next != NULL) q = q->next;
+        q->next = p;
+    }
+}
+
+// Tao danh sach co 3 nhan vien tro len
+void taoDS(TRO &L) {
+    int n;
+    cout << "Nhap so luong nhan vien (toi thieu 3): ";
+    cin >> n;
+    while (n < 3) {
+        cout << "Nhap lai (>=3): ";
+        cin >> n;
+    }
+
+    NhanVien nv;
+    for (int i = 0; i < n; ++i) {
+        cout << "\nNhap nhan vien thu " << i+1 << ":\n";
+        nhapNV(nv);
+        themCuoi(L, nv);
+    }
+}
+
+// Xuat danh sach
+void xuatDS(TRO L) {
+    cout << left << setw(15) << "Ho dem"
+         << setw(15) << "Ten"
+         << setw(10) << "Gioi tinh"
+         << setw(15) << "Ma NV"
+         << setw(10) << "So luong" << endl;
+    while (L != NULL) {
+        NhanVien nv = L->data;
+        cout << left << setw(15) << nv.hodem
+             << setw(15) << nv.ten
+             << setw(10) << nv.gioitinh
+             << setw(15) << nv.manv
+             << setw(10) << nv.soluong << endl;
+        L = L->next;
+    }
+}
+
+// Tim theo ten
+TRO timTheoTen(TRO L, const char ten[]) {
+    while (L != NULL) {
+        if (strcmp(L->data.ten, ten) == 0)
+            return L;
+        L = L->next;
+    }
+    return NULL;
+}
+
+// Xoa node
+void xoaNode(TRO &L, TRO target) {
+    if (L == NULL || target == NULL) return;
+
+    if (L == target) {
+        L = L->next;
+        delete target;
+        return;
+    }
+
+    TRO prev = L;
+    while (prev->next != NULL && prev->next != target)
+        prev = prev->next;
+
+    if (prev->next == target) {
+        prev->next = target->next;
+        delete target;
+    }
+}
+
+// Chen dau danh sach
+void chenDau(TRO &L, NhanVien nv) {
+    TRO p = new Node;
+    p->data = nv;
+    p->next = L;
+    L = p;
+}
+
+// Sap xep danh sach theo so luong tang dan
+void sapXepTangDan(TRO &L) {
+    for (TRO p = L; p != NULL; p = p->next) {
+        for (TRO q = p->next; q != NULL; q = q->next) {
+            if (p->data.soluong > q->data.soluong) {
+                swap(p->data, q->data);
+            }
+        }
+    }
+}
+
+// Ham main
+int main() {
+    TRO L = NULL;
+
+    // Tao danh sach
+    taoDS(L);
+    cout << "\n=== Danh sach vua nhap ===\n";
+    xuatDS(L);
+
+    // Tim nhan vien theo ten
+    char tenTim[20];
+    cout << "\nNhap ten nhan vien can tim: ";
+    cin.ignore();
+    cin.getline(tenTim, 20);
+    TRO found = timTheoTen(L, tenTim);
+
+    if (found != NULL) {
+        cout << "\nTim thay nhan vien:\n";
+        cout << left << setw(15) << found->data.hodem
+             << setw(15) << found->data.ten
+             << setw(10) << found->data.gioitinh
+             << setw(15) << found->data.manv
+             << setw(10) << found->data.soluong << endl;
+
+        // Xoa nhan vien tim duoc
+        xoaNode(L, found);
+        cout << "\nDanh sach sau khi xoa:\n";
+        xuatDS(L);
+    } else {
+        cout << "\nKhong tim thay ten nhan vien.\n";
+    }
+
+    // Chen moi vao dau danh sach
+    NhanVien nvMoi;
+    cout << "\nNhap nhan vien moi chen vao dau:\n";
+    nhapNV(nvMoi);
+    chenDau(L, nvMoi);
+
+    // Sap xep danh sach theo so luong tang dan
+    sapXepTangDan(L);
+    cout << "\nDanh sach sau khi chen va sap xep tang dan theo so luong:\n";
+    xuatDS(L);
+
+    return 0;
+}
+
+
