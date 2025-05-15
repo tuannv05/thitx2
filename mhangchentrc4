@@ -1,0 +1,156 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+// Khai bao cau truc du lieu
+struct MatHang {
+    char ma[10];
+    char ten[50];
+    int soLuong;
+};
+
+struct Node {
+    MatHang data;
+    Node* next;
+};
+
+typedef Node* TRO;
+
+// Nhap thong tin mat hang
+void nhap(MatHang &mh) {
+    cout << "Nhap ma hang: ";
+    cin.ignore();
+    cin.getline(mh.ma, 10);
+    cout << "Nhap ten hang: ";
+    cin.getline(mh.ten, 50);
+    cout << "Nhap so luong: ";
+    cin >> mh.soLuong;
+}
+
+// Them vao cuoi danh sach
+void themCuoi(TRO &L, MatHang mh) {
+    Node* p = new Node;
+    p->data = mh;
+    p->next = NULL;
+    if (L == NULL)
+        L = p;
+    else {
+        Node* q = L;
+        while (q->next != NULL)
+            q = q->next;
+        q->next = p;
+    }
+}
+
+// Hien thi danh sach
+void hienThi(TRO L) {
+    cout << "\nDanh sach mat hang:\n";
+    while (L != NULL) {
+        cout << "Ma: " << L->data.ma
+             << ", Ten: " << L->data.ten
+             << ", So luong: " << L->data.soLuong << endl;
+        L = L->next;
+    }
+}
+
+// Hien thi mat hang co so luong > 10
+void hienThiSoLuongLonHon10(TRO L) {
+    cout << "\nMat hang co so luong > 10:\n";
+    while (L != NULL) {
+        if (L->data.soLuong > 10)
+            cout << "Ma: " << L->data.ma
+                 << ", Ten: " << L->data.ten
+                 << ", So luong: " << L->data.soLuong << endl;
+        L = L->next;
+    }
+}
+
+// Xoa mat hang co so luong nho nhat
+void xoaSoLuongMin(TRO &L) {
+    if (L == NULL) return;
+
+    int minSL = L->data.soLuong;
+    Node* p = L;
+    while (p != NULL) {
+        if (p->data.soLuong < minSL)
+            minSL = p->data.soLuong;
+        p = p->next;
+    }
+
+    Node *prev = NULL, *curr = L;
+    while (curr != NULL && curr->data.soLuong != minSL) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    if (curr != NULL) {
+        if (prev == NULL)
+            L = L->next;
+        else
+            prev->next = curr->next;
+        delete curr;
+    }
+}
+
+// Chen mat hang moi vao truoc mat hang thu 4
+void chenTruocThu4(TRO &L, MatHang mh) {
+    Node* p = new Node;
+    p->data = mh;
+
+    if (L == NULL || L->next == NULL || L->next->next == NULL) {
+        cout << "Danh sach chua du 4 mat hang.\n";
+        return;
+    }
+
+    if (L->next->next->next == NULL) {
+        // Chen vao cuoi neu chi co 3 node
+        themCuoi(L, mh);
+        return;
+    }
+
+    Node *prev = NULL, *curr = L;
+    for (int i = 1; i < 4 && curr != NULL; i++) {
+        prev = curr;
+        curr = curr->next;
+    }
+
+    if (prev != NULL) {
+        p->next = prev->next;
+        prev->next = p;
+    }
+}
+
+// Main
+int main() {
+    TRO L = NULL;
+    MatHang mh;
+
+    int n;
+    cout << "Nhap so mat hang (>=3): ";
+    cin >> n;
+    while (n < 3) {
+        cout << "Nhap lai (>=3): ";
+        cin >> n;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        cout << "\nNhap mat hang thu " << i + 1 << ":\n";
+        nhap(mh);
+        themCuoi(L, mh);
+    }
+
+    hienThi(L);
+
+    hienThiSoLuongLonHon10(L);
+
+    xoaSoLuongMin(L);
+    cout << "\nDanh sach sau khi xoa mat hang co so luong nho nhat:\n";
+    hienThi(L);
+
+    cout << "\nNhap mat hang moi de chen truoc vi tri thu 4:\n";
+    nhap(mh);
+    chenTruocThu4(L, mh);
+    hienThi(L);
+
+    return 0;
+}
