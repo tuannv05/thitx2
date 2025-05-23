@@ -1,0 +1,53 @@
+void chenTruocViTri(List &l, NhanVien nv, int viTri) {
+    Node* p = taoNode(nv);
+
+    if (viTri <= 0 || l == nullptr) {
+        p->next = l;
+        l = p;
+        return;
+    }
+
+    Node* temp = l;
+    int dem = 0;
+
+    while (temp != nullptr && dem < viTri - 1) {
+        temp = temp->next;
+        dem++;
+    }
+
+    if (temp == nullptr) {
+        // viTri > do dai danh sach, them cuoi
+        themCuoi(l, nv);
+    } else {
+        p->next = temp->next;
+        temp->next = p;
+    }
+}
+
+
+
+void xoaTaiViTri(List &l, int viTri) {
+    if (l == nullptr || viTri < 0) return;
+
+    if (viTri == 0) {
+        Node* temp = l;
+        l = l->next;
+        delete temp;
+        return;
+    }
+
+    Node* truoc = nullptr;
+    Node* hienTai = l;
+    int dem = 0;
+
+    while (hienTai != nullptr && dem < viTri) {
+        truoc = hienTai;
+        hienTai = hienTai->next;
+        dem++;
+    }
+
+    if (hienTai != nullptr) {
+        truoc->next = hienTai->next;
+        delete hienTai;
+    }
+}
