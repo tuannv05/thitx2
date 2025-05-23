@@ -1,0 +1,164 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct NhanVien {
+    string hoDem;
+    string ten;
+    string gioiTinh;
+    string maNV;
+    float heSoLuong;
+};
+
+struct Node {
+    NhanVien data;
+    Node* next;
+};
+
+typedef Node* List;
+
+// Khoi tao danh sach
+void khoiTao(List &l) {
+    l = nullptr;
+}
+
+// Tao mot node moi
+Node* taoNode(NhanVien nv) {
+    Node* p = new Node;
+    p->data = nv;
+    p->next = nullptr;
+    return p;
+}
+
+// Them vao cuoi danh sach
+void themCuoi(List &l, NhanVien nv) {
+    Node* p = taoNode(nv);
+    if (l == nullptr) {
+        l = p;
+    } else {
+        Node* temp = l;
+        while (temp->next != nullptr)
+            temp = temp->next;
+        temp->next = p;
+    }
+}
+
+// Nhap thong tin 1 nhan vien
+NhanVien nhapNV() {
+    NhanVien nv;
+    cout << "Nhap ho dem: "; getline(cin, nv.hoDem);
+    cout << "Nhap ten: "; getline(cin, nv.ten);
+    cout << "Nhap gioi tinh: "; getline(cin, nv.gioiTinh);
+    cout << "Nhap ma NV: "; getline(cin, nv.maNV);
+    cout << "Nhap he so luong: "; cin >> nv.heSoLuong;
+    cin.ignore();
+    return nv;
+}
+
+// Nhap danh sach nhan vien
+void nhapDS(List &l, int n) {
+    for (int i = 0; i < n; i++) {
+        cout << "\nNhap nhan vien thu " << i+1 << ":\n";
+        NhanVien nv = nhapNV();
+        themCuoi(l, nv);
+    }
+}
+
+// Hien thi 1 nhan vien
+void xuatNV(NhanVien nv) {
+    cout << nv.maNV << "\t" << nv.hoDem << " " << nv.ten << "\t"
+         << nv.gioiTinh << "\t" << nv.heSoLuong << endl;
+}
+
+// Hien thi danh sach
+void xuatDS(List l) {
+    cout << "\nDanh sach nhan vien:\n";
+    while (l != nullptr) {
+        xuatNV(l->data);
+        l = l->next;
+    }
+}
+
+// Tim va xoa nhan vien theo ma
+void timVaXoa(List &l, string maNV) {
+    Node* prev = nullptr;
+    Node* curr = l;
+
+    while (curr != nullptr) {
+        if (curr->data.maNV == maNV) {
+            cout << "\nNhan vien tim thay:\n";
+            xuatNV(curr->data);
+            cout << "\n--> Tien hanh xoa nhan vien nay.\n";
+            if (prev == nullptr) {
+                l = curr->next;
+            } else {
+                prev->next = curr->next;
+            }
+            delete curr;
+            return;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    cout << "\nKhong tim thay nhan vien co ma: " << maNV << endl;
+}
+
+// Them nhan vien moi vao dau danh sach
+void themDau(List &l, NhanVien nv) {
+    Node* p = taoNode(nv);
+    p->next = l;
+    l = p;
+}
+
+// Sap xep danh sach tang dan theo he so luong
+void sapXepTheoHeSoLuong(List &l) {
+    if (l == nullptr || l->next == nullptr) return;
+
+    for (Node* i = l; i != nullptr; i = i->next) {
+        for (Node* j = i->next; j != nullptr; j = j->next) {
+            if (i->data.heSoLuong > j->data.heSoLuong) {
+                swap(i->data, j->data);
+            }
+        }
+    }
+}
+
+// ===============================
+// Ham main
+// ===============================
+int main() {
+    List ds;
+    khoiTao(ds);
+
+    int n;
+    cout << "Nhap so luong nhan vien (>= 3): ";
+    cin >> n;
+    cin.ignore();
+    nhapDS(ds, n);
+
+    xuatDS(ds);
+
+    // Tim va xoa theo ma
+    string ma;
+    cout << "\nNhap ma nhan vien can tim va xoa: ";
+    getline(cin, ma);
+    timVaXoa(ds, ma);
+
+    cout << "\nDanh sach sau khi xoa:\n";
+    xuatDS(ds);
+
+    // Them vao dau danh sach
+    cout << "\nNhap thong tin nhan vien moi them vao dau danh sach:\n";
+    NhanVien moi = nhapNV();
+    themDau(ds, moi);
+
+    cout << "\nDanh sach sau khi them vao dau:\n";
+    xuatDS(ds);
+
+    // Sap xep theo he so luong
+    sapXepTheoHeSoLuong(ds);
+    cout << "\nDanh sach sau khi sap xep theo he so luong tang dan:\n";
+    xuatDS(ds);
+
+    return 0;
+}
